@@ -12,6 +12,7 @@ import {
   Prisma,
   Lane,
   Ticket,
+  Tag,
 } from "@prisma/client";
 import { v4 } from "uuid";
 import { CreateMediaType, createFunnelFormSchema } from "./types";
@@ -665,4 +666,76 @@ export const getSubccountTeamMembers = async (subaccountId: string) => {
     },
   });
   return subaccountUsersWithAccess;
+};
+
+export const searchContacts = async (searchTerms: string) => {
+  const response = await db.contact.findMany({
+    where: {
+      name: {
+        contains: searchTerms,
+      },
+    },
+  });
+  return response;
+};
+
+export const upsertTicket = async (
+  ticket: Prisma.TicketUncheckedCreateInput,
+  tags: Tag[]
+) => {
+  let order: number;
+  if (!ticket.order) {
+    const tickets = await db.ticket.findMany({
+      where: { laneId: ticket.laneId },
+    });
+    order = tickets.length;
+  } else {
+    order = ticket.order;
+  }
+
+  const responce = await db.ticket.upsert({
+    where: { id: ticket.id || v4() },
+    update: { ...ticket, Tags: { set: tags }, order },
+    create: { ...ticket, Tags: { connect: tags }, order },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Tags: true,
+      Lane: true,
+    },
+  });
+  return responce;
+};
+
+export const deleteTicket = async (ticketId: string) => {
+  const responce = await db.ticket.delete({
+    where: { id: ticketId },
+  });
+  return responce;
+};
+
+export const upsertTag = async (
+  subaccountId: string,
+  tag: Prisma.TagUncheckedCreateInput
+) => {
+  const response = await db.tag.upsert({
+    where: { id: tag.id || v4(), subAccountId: subaccountId },
+    update: tag,
+    create: { ...tag, subAccountId: subaccountId },
+  });
+
+  return response;
+};
+
+export const getTagsForSubaccount = async (subaccountId: string) => {
+  const response = await db.subAccount.findUnique({
+    where: { id: subaccountId },
+    select: { Tags: true },
+  });
+  return response;
+};
+
+export const deleteTag = async (tagId: string) => {
+  const response = await db.tag.delete({ where: { id: tagId } });
+  return response;
 };

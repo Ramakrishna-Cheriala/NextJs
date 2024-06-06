@@ -1,6 +1,7 @@
 import { getAuthUserDetails } from "@/lib/queries";
-import React from "react";
+import React, { useEffect } from "react";
 import MenuOptions from "./menu-options";
+import { headers } from "next/headers";
 
 type Props = {
   id: string;
@@ -8,6 +9,9 @@ type Props = {
 };
 
 const Sidebar = async ({ id, type }: Props) => {
+  const headerList = headers();
+  const currentPath = headerList.get("x-custom-path");
+  console.log("Current Path from Headers:", currentPath);
   const user = await getAuthUserDetails();
   if (!user) return null;
 
@@ -38,10 +42,9 @@ const Sidebar = async ({ id, type }: Props) => {
           ?.SidebarOption || [];
 
   const subaccounts = user.Agency.SubAccount.filter((subaccount) => {
-    user.Permissions.find(
-      (permission) =>
-        permission.subAccountId === subaccount.id && permission.access
-    );
+    return user.Permissions.find((permission) => {
+      return permission.subAccountId === subaccount.id && permission.access;
+    });
   });
 
   return (

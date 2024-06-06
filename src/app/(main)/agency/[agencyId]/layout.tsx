@@ -9,6 +9,7 @@ import {
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import React from "react";
+import { headers } from "next/headers";
 
 type Props = {
   children: React.ReactNode;
@@ -18,6 +19,10 @@ type Props = {
 };
 
 const layout = async ({ children, params }: Props) => {
+  // const headerList = headers();
+  // const currentPath = headerList.get("x-custom-path");
+  // console.log("Current Path from Headers:", currentPath);
+
   const agencyId = await verifyAndAcceptInvitation();
   const user = await currentUser();
   if (!user) {

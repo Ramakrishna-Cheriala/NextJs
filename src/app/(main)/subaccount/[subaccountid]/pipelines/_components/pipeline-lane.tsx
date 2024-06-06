@@ -24,14 +24,13 @@ import {
 import { deleteLane, saveActivityLogsNotification } from "@/lib/queries";
 import { LaneDetail, TicketWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/providers/model-provider";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { Edit, MoreVertical, PlusCircleIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 // import PipelineTicket from './pipeline-ticket'
 import CustomModal from "@/components/global/custom-modal";
-// import TicketForm from "@/components/forms/ticket-form";
-import { useModal } from "@/providers/model-provider";
 import TicketForm from "@/components/forms/ticket-form";
 import PipelineTicket from "./pipeline-ticket";
 
@@ -63,7 +62,6 @@ const PipelineLane: React.FC<PipelaneLaneProps> = ({
   });
 
   const laneAmt = useMemo(() => {
-    console.log(tickets);
     return tickets.reduce(
       (sum, ticket) => sum + (Number(ticket?.value) || 0),
       0
@@ -175,7 +173,7 @@ const PipelineLane: React.FC<PipelaneLaneProps> = ({
                     type="ticket"
                   >
                     {(provided) => (
-                      <div className=" max-h-[700px] overflow-scroll pt-12 ">
+                      <div className=" max-h-[700px] pt-12 w-full">
                         <div
                           {...provided.droppableProps}
                           ref={provided.innerRef}

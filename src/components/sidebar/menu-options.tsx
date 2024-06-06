@@ -27,6 +27,7 @@ import CustomModal from "../global/custom-modal";
 import SubAccountDetails from "../forms/subaccount-details";
 import { Separator } from "../ui/separator";
 import { icons } from "@/lib/constants";
+import { useParams } from "next/navigation";
 
 type Props = {
   defaultOpen?: boolean;
@@ -47,6 +48,8 @@ const MenuOptions = ({
   subAccounts,
   defaultOpen,
 }: Props) => {
+  const params = useParams();
+  console.log(params);
   const { setOpen } = useModal();
   const [isMounted, setIsMounted] = useState(false);
   const openState = useMemo(() => {
@@ -185,7 +188,7 @@ const MenuOptions = ({
                                 <div className="flex flex-col flex-1">
                                   {user.Agency?.name}
                                   <span className="text-muted-foreground">
-                                    {subaccount.address}
+                                    {subaccount.name}
                                   </span>
                                 </div>
                               </Link>

@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import { authMiddleware, clerkMiddleware } from "@clerk/nextjs/server";
+import { NextRequest } from "next/server";
 
 export default authMiddleware({
-  publicRoutes: ["/site", "/api/uploadthing"],
+  publicRoutes: ["/api/uploadthing"],
 
   async afterAuth(auth, req) {
     // console.log("clerkmiddleware");
     const url = req.nextUrl;
-    // console.log(url);
     const searchParams = url.searchParams.toString();
     const pathWithSearchParams = `${url.pathname}${
       searchParams.length > 0 ? `?${searchParams}` : ""
     }`;
+
+    const headers = new Headers(req.headers);
+    headers.set("x-custom-path", req.nextUrl.pathname);
 
     const hostname = req.headers.get("host");
     console.log("Hostname:", hostname);
@@ -48,8 +51,9 @@ export default authMiddleware({
       url.pathname.startsWith("/agency") ||
       url.pathname.startsWith("/subaccount")
     ) {
-      console.log("Rewriting path as is:", pathWithSearchParams);
-      return NextResponse.rewrite(new URL(`${pathWithSearchParams}`, req.url));
+      const rewrittenUrl = new URL(new URL(`${pathWithSearchParams}`, req.url));
+
+      return NextResponse.rewrite(rewrittenUrl, { headers });
     }
 
     // If none of the conditions match, allow the request to proceed normally
